@@ -60,6 +60,11 @@ Notes:
 - The installer writes credentials into <code>application/config/database.php</code>, so the file must be writable by PHP.
 - After successful install, a lock file <code>application/config/installed.lock</code> is created (delete it if you need to re-run the installer).
 
+## Quick setup for grading (Vietnamese guide)
+- Detailed installation + usage guide: <code>docs/SETUP_AND_USAGE_VI.md</code>
+- SQL import guide and file choice: <code>sql/README.md</code>
+- Recommended DB file for this project submission: <code>sql/shop.sql</code>
+
 ## Available Languages
 - ![CodeIgniter Ecommerce English](https://raw.githubusercontent.com/kirilkirkov/Shopping-Cart-Solution-CodeIgniter/master/attachments/lang_flags/en.jpg "English Translation CodeIgniter") English
 - ![CodeIgniter Ecommerce Greece](https://raw.githubusercontent.com/kirilkirkov/Shopping-Cart-Solution-CodeIgniter/master/attachments/lang_flags/gr.png "Greece Translation CodeIgniter") Greece

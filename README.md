@@ -1,4 +1,4 @@
-<p align="center"><img src="https://cdn.worldvectorlogo.com/logos/codeigniter-1.svg" width="100"></p>
+﻿<p align="center"><img src="https://cdn.worldvectorlogo.com/logos/codeigniter-1.svg" width="100"></p>
 <p align="center">Shopping Cart Solution - CodeIgniter and Bootstrap</p>
  
 ## Bootstrap Responsive Multi-Vendor, MultiLanguage Online Shop Platform
@@ -7,6 +7,17 @@ Current versions:
 
 * Codeigniter 3.1.13 (CodeIgniter Foundation) - modified version with PHP 8.5 support
 * Bootstrap 3.3.7
+
+## Competition Readiness
+- Public repository: <code>https://github.com/khoikid789-lang/web-app-</code>
+- License: MIT (<code>LICENSE</code>)
+- Current release version: <code>v1.0.0-competition-2026</code> (<code>VERSION</code>)
+- Installation and usage (Vietnamese): <code>docs/SETUP_AND_USAGE_VI.md</code>
+- SQL import guide: <code>sql/README.md</code>
+- Dependency disclosure: <code>docs/DEPENDENCIES.md</code>
+- Changelog: <code>CHANGELOG.md</code>
+- Project roadmap: <code>docs/ROADMAP.md</code>
+- Rubric evidence map: <code>docs/COMPETITION_CHECKLIST.md</code>
 
 ## Donate
 <p>If this project help you reduce time to develop, you can give me a cup of coffee to continue its development. Thank you! :)</p>
@@ -115,7 +126,8 @@ Read in our wiki - https://github.com/kirilkirkov/Shopping-Cart-Solution-CodeIgn
 Read in our wiki - https://github.com/kirilkirkov/Shopping-Cart-Solution-CodeIgniter/wiki/API
 
 ### Server Requirements
-- PHP 7.4–8.5 (any version in this range)
-- MySQL 5.7–8.4.7 (any version in this range)
+- PHP 7.4-8.5 (any version in this range)
+- MySQL 5.7-8.4.7 (any version in this range)
 
 Note: Versions outside these ranges (e.g., PHP 5.6) may work, but are not officially supported or tested.
+

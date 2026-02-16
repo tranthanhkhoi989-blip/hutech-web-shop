@@ -288,6 +288,11 @@ class Public_model extends CI_Model
             $rr['order_id'] = 1233;
         }
         $post['order_id'] = $rr['order_id'] + 1;
+        $transferContent = $this->buildTransferContent($post['payment_type'], $post['order_id']);
+        $notesToSave = isset($post['notes']) ? trim($post['notes']) : '';
+        if ($transferContent !== '') {
+            $notesToSave = trim($notesToSave . " | Transfer content: " . $transferContent);
+        }
 
         $i = 0;
         $post['products'] = array();
@@ -331,7 +336,7 @@ class Public_model extends CI_Model
                     'address' => $this->encryption->encrypt($post['address']),
                     'city' => $this->encryption->encrypt($post['city']),
                     'post_code' => $this->encryption->encrypt($post['post_code']),
-                    'notes' => $this->encryption->encrypt($post['notes'])
+                    'notes' => $this->encryption->encrypt($notesToSave)
                 ))) {
             log_message('error', print_r($this->db->error(), true));
         }
@@ -342,6 +347,25 @@ class Public_model extends CI_Model
             $this->db->trans_commit();
             return $post['order_id'];
         }
+    }
+
+    private function buildTransferContent($paymentType, $orderId)
+    {
+        if ($paymentType === 'Bank') {
+            return 'BANK-ORDER-' . $orderId;
+        }
+        return '';
+    }
+
+    public function getActiveDiscountCodes()
+    {
+        $time = time();
+        $this->db->select('code, type, amount, valid_to_date');
+        $this->db->where('status', 1);
+        $this->db->where($time . ' BETWEEN valid_from_date AND valid_to_date');
+        $this->db->order_by('id', 'DESC');
+        $query = $this->db->get('discount_codes');
+        return $query->result_array();
     }
     
     private function getOneProductForSerialize($id)
@@ -625,9 +649,19 @@ class Public_model extends CI_Model
 
     public function registerUser($post)
     {
+        $name = isset($post['name']) ? trim($post['name']) : '';
+        $phone = isset($post['phone']) ? trim($post['phone']) : '';
+        $address = isset($post['address']) ? trim($post['address']) : '';
+        $city = isset($post['city']) ? trim($post['city']) : '';
+        $postCode = isset($post['post_code']) ? trim($post['post_code']) : '';
+        $preferredPaymentType = isset($post['preferred_payment_type']) ? trim($post['preferred_payment_type']) : 'cashOnDelivery';
         $this->db->insert('users_public', array(
-            'name' => $post['name'],
-            'phone' => $post['phone'],
+            'name' => $name,
+            'phone' => $phone,
+            'address' => $address,
+            'city' => $city,
+            'post_code' => $postCode,
+            'preferred_payment_type' => $preferredPaymentType,
             'email' => $post['email'],
             'password' => md5($post['pass'])
         ));
@@ -639,6 +673,10 @@ class Public_model extends CI_Model
         $array = array(
             'name' => $post['name'],
             'phone' => $post['phone'],
+            'address' => isset($post['address']) ? trim($post['address']) : '',
+            'city' => isset($post['city']) ? trim($post['city']) : '',
+            'post_code' => isset($post['post_code']) ? trim($post['post_code']) : '',
+            'preferred_payment_type' => isset($post['preferred_payment_type']) ? trim($post['preferred_payment_type']) : 'cashOnDelivery',
             'email' => $post['email']
         );
         if (trim($post['pass']) != '') {
@@ -650,7 +688,11 @@ class Public_model extends CI_Model
 
     public function checkPublicUserIsValid($post)
     {
-        $this->db->where('email', $post['email']);
+        $identity = isset($post['identity']) ? trim($post['identity']) : (isset($post['email']) ? trim($post['email']) : '');
+        $this->db->group_start();
+        $this->db->where('email', $identity);
+        $this->db->or_where('name', $identity);
+        $this->db->group_end();
         $this->db->where('password', md5($post['pass']));
         $query = $this->db->get('users_public');
         $result = $query->row_array();
@@ -659,6 +701,41 @@ class Public_model extends CI_Model
         } else {
             return $result['id'];
         }
+    }
+
+    public function loginOrCreateSocialUser($email, $name)
+    {
+        $email = trim($email);
+        $name = trim($name);
+        $this->db->where('email', $email);
+        $existing = $this->db->get('users_public')->row_array();
+        if (!empty($existing)) {
+            if ($name !== '' && $existing['name'] !== $name) {
+                $this->db->where('id', $existing['id']);
+                $this->db->update('users_public', array('name' => $name));
+            }
+            return (int) $existing['id'];
+        }
+
+        if ($name === '') {
+            $name = substr($email, 0, strpos($email, '@'));
+        }
+
+        $data = array(
+            'name' => $name,
+            'phone' => '',
+            'address' => '',
+            'city' => '',
+            'post_code' => '',
+            'preferred_payment_type' => 'cashOnDelivery',
+            'email' => $email,
+            'password' => md5(uniqid('social_', true))
+        );
+        if (!$this->db->insert('users_public', $data)) {
+            log_message('error', print_r($this->db->error(), true));
+            return false;
+        }
+        return (int) $this->db->insert_id();
     }
 
     public function getUserProfileInfo($id)

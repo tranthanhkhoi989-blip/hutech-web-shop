@@ -132,4 +132,12 @@ class Orders_model extends CI_Model
             $this->db->trans_commit();
         }
     }
+
+    public function getOrderMeta($id)
+    {
+        $this->db->select('id, order_id, processed, payment_type, date');
+        $this->db->where('id', (int) $id);
+        $query = $this->db->get('orders');
+        return $query->row_array();
+    }
 }

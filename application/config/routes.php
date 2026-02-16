@@ -119,6 +119,16 @@ $route['(\w{2})/myaccount/(:num)'] = "Users/myaccount/$2";
 $route['logout'] = "Users/logout";
 $route['(\w{2})/logout'] = "Users/logout";
 
+// Social auth for public users
+$route['auth/facebook'] = "Users/facebook";
+$route['(\w{2})/auth/facebook'] = "Users/facebook";
+$route['auth/facebook/callback'] = "Users/facebookCallback";
+$route['(\w{2})/auth/facebook/callback'] = "Users/facebookCallback";
+$route['auth/google'] = "Users/google";
+$route['(\w{2})/auth/google'] = "Users/google";
+$route['auth/google/callback'] = "Users/googleCallback";
+$route['(\w{2})/auth/google/callback'] = "Users/googleCallback";
+
 $route['sitemap.xml'] = "home/sitemap";
 $route['kirilkirkov-ecommerce-ci-bs3-platform'] = "home/platform";
 
@@ -206,6 +216,9 @@ $route['admin/history/(:num)'] = "admin/settings/history/index/$1";
 $route['admin/languages'] = "admin/advanced_settings/languages";
 $route['admin/filemanager'] = "admin/advanced_settings/filemanager";
 $route['admin/adminusers'] = "admin/advanced_settings/adminusers";
+$route['admin/publicusers'] = "admin/users/publicusers";
+$route['admin/publicusers/(:num)'] = "admin/users/publicusers/index/$1";
+$route['admin/publicusers/delete/(:num)'] = "admin/users/publicusers/delete/$1";
 // TEXTUAL PAGES
 $route['admin/pageedit/(:any)'] = "admin/textual_pages/TextualPages/pageEdit/$1";
 $route['admin/changePageStatus'] = "admin/textual_pages/TextualPages/changePageStatus";

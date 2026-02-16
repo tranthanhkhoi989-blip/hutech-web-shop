@@ -20,7 +20,7 @@ if (isset($_SESSION['shopping_cart']) && is_array($_SESSION['shopping_cart'])) {
         <div class="lg:col-span-6">
             <div class="overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-slate-200">
                 <div class="flex items-center justify-center bg-slate-50 p-6">
-                    <img src="<?= $productImage; ?>" data-num="0" class="other-img-preview img-sl the-image h-[520px] w-auto max-w-full object-contain" alt="<?= str_replace('"', "'", $product['title']) ?>">
+                    <img src="<?= $productImage; ?>" data-num="0" class="other-img-preview product-main-image img-sl the-image object-contain" alt="<?= str_replace('"', "'", $product['title']) ?>">
                 </div>
             </div>
 
@@ -36,7 +36,7 @@ if (isset($_SESSION['shopping_cart']) && is_array($_SESSION['shopping_cart'])) {
                                     ?>
                                     <button type="button" class="overflow-hidden rounded-2xl bg-white ring-1 ring-slate-200 hover:ring-slate-300">
                                         <div class="flex items-center justify-center bg-slate-50 p-2">
-                                            <img src="<?= base_url($dir . $file) ?>" data-num="<?= $i ?>" class="other-img-preview img-sl the-image h-24 w-auto max-w-full object-contain" alt="<?= str_replace('"', "'", $product['title']) ?>">
+                                            <img src="<?= base_url($dir . $file) ?>" data-num="<?= $i ?>" class="other-img-preview product-thumb-image img-sl the-image object-contain" alt="<?= str_replace('"', "'", $product['title']) ?>">
                                         </div>
                                     </button>
                                     <?php

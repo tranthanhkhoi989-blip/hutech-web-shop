@@ -115,6 +115,7 @@
                                             <?php } ?>
                                         </a>
                                     </li>
+                                    <li><a href="<?= base_url('admin/publicusers') ?>" <?= strpos(urldecode(uri_string()), 'admin/publicusers') === 0 ? 'class="active"' : '' ?>><i class="fa fa-users" aria-hidden="true"></i> Public Users</a></li>
                                     <li><a href="<?= base_url('admin/discounts') ?>" <?= urldecode(uri_string()) == 'admin/discounts' ? 'class="active"' : '' ?>><i class="fa fa-percent" aria-hidden="true"></i> <?= lang('discount_codes') ?></a></li>
                                     <?php if (in_array('blog', $activePages)) { ?>
                                         <li class="header"><?= lang('blog') ?></li>

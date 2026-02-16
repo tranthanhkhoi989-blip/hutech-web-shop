@@ -118,7 +118,7 @@
                     <div class="mx-auto max-w-7xl px-4 py-4">
                         <!-- Row layout: mobile (logo+cart on top, search below), desktop (logo | search | cart) -->
                         <div class="grid grid-cols-12 items-center gap-3">
-                            <div class="col-span-6 md:col-span-3">
+                            <div class="col-span-6 md:col-span-3 lg:col-span-2">
                                 <a href="<?= base_url() ?>" class="inline-flex items-center gap-3">
                                     <img src="<?= base_url('attachments/site_logo/' . $sitelogo) ?>" class="h-11 w-auto max-w-full md:h-14" alt="<?= $_SERVER['HTTP_HOST'] ?>">
                                     <?php if ($navitext != null) { ?>
@@ -127,36 +127,70 @@
                                 </a>
                             </div>
 
-                            <div class="col-span-6 flex justify-end md:col-span-3 md:order-3">
-                                <div class="relative" data-wind-dropdown="true">
-                                    <button
-                                        type="button"
-                                        data-wind-toggle="dropdown"
-                                        data-wind-target="#wind-cart-panel"
-                                        class="inline-flex items-center gap-3 rounded-2xl bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm ring-1 ring-inset ring-slate-200 hover:bg-slate-50"
-                                    >
-                                        <span class="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-slate-900 text-white">
-                                            <i class="fa fa-shopping-cart" aria-hidden="true"></i>
-                                        </span>
-                                        <span class="hidden lg:inline"><?= lang('shopping_cart') ?></span>
-                                        <span class="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-bold text-slate-900">
-                                            <span class="sumOfItems"><?= is_numeric($cartItems) && (int)$cartItems == 0 ? 0 : $sumOfItems ?></span>
-                                        </span>
-                                    </button>
+                            <div class="col-span-6 flex justify-end md:col-span-4 lg:col-span-4 md:order-3">
+                                <div class="flex items-center gap-2">
+                                    <?php if (isset($_SESSION['logged_user'])) { ?>
+                                        <a
+                                            href="<?= LANG_URL . '/myaccount' ?>"
+                                            class="inline-flex items-center gap-2 whitespace-nowrap rounded-2xl bg-white px-3 py-2 text-sm font-semibold text-slate-900 shadow-sm ring-1 ring-inset ring-slate-200 hover:bg-slate-50"
+                                        >
+                                            <i class="fa fa-user-o" aria-hidden="true"></i>
+                                            <span class="hidden xl:inline">My account</span>
+                                        </a>
+                                        <a
+                                            href="<?= LANG_URL . '/logout' ?>"
+                                            class="inline-flex items-center gap-2 whitespace-nowrap rounded-2xl bg-white px-3 py-2 text-sm font-semibold text-slate-900 shadow-sm ring-1 ring-inset ring-slate-200 hover:bg-slate-50"
+                                        >
+                                            <i class="fa fa-sign-out" aria-hidden="true"></i>
+                                            <span class="hidden xl:inline">Logout</span>
+                                        </a>
+                                    <?php } else { ?>
+                                        <a
+                                            href="<?= LANG_URL . '/login' ?>"
+                                            class="inline-flex items-center gap-2 whitespace-nowrap rounded-2xl bg-white px-3 py-2 text-sm font-semibold text-slate-900 shadow-sm ring-1 ring-inset ring-slate-200 hover:bg-slate-50"
+                                        >
+                                            <i class="fa fa-sign-in" aria-hidden="true"></i>
+                                            <span class="hidden xl:inline">Sign in</span>
+                                        </a>
+                                        <a
+                                            href="<?= LANG_URL . '/register' ?>"
+                                            class="inline-flex items-center gap-2 whitespace-nowrap rounded-2xl bg-slate-900 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-slate-800"
+                                        >
+                                            <i class="fa fa-user-plus" aria-hidden="true"></i>
+                                            <span class="hidden xl:inline">Sign up</span>
+                                        </a>
+                                    <?php } ?>
 
-                                    <div
-                                        id="wind-cart-panel"
-                                        data-wind-dropdown-panel="true"
-                                        class="hidden absolute right-0 z-50 mt-2 w-96 max-w-[calc(100vw-2rem)] rounded-2xl bg-white shadow-xl ring-1 ring-slate-200"
-                                    >
-                                        <ul class="dropdown-cart max-h-[70vh] overflow-auto">
-                                            <?= $load::getCartItems($cartItems) ?>
-                                        </ul>
+                                    <div class="relative" data-wind-dropdown="true">
+                                        <button
+                                            type="button"
+                                            data-wind-toggle="dropdown"
+                                            data-wind-target="#wind-cart-panel"
+                                            class="inline-flex items-center gap-3 whitespace-nowrap rounded-2xl bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm ring-1 ring-inset ring-slate-200 hover:bg-slate-50"
+                                        >
+                                            <span class="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-slate-900 text-white">
+                                                <i class="fa fa-shopping-cart" aria-hidden="true"></i>
+                                            </span>
+                                            <span class="hidden xl:inline"><?= lang('shopping_cart') ?></span>
+                                            <span class="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-bold text-slate-900">
+                                                <span class="sumOfItems"><?= is_numeric($cartItems) && (int)$cartItems == 0 ? 0 : $sumOfItems ?></span>
+                                            </span>
+                                        </button>
+
+                                        <div
+                                            id="wind-cart-panel"
+                                            data-wind-dropdown-panel="true"
+                                            class="hidden absolute right-0 z-50 mt-2 w-96 max-w-[calc(100vw-2rem)] rounded-2xl bg-white shadow-xl ring-1 ring-slate-200"
+                                        >
+                                            <ul class="dropdown-cart max-h-[70vh] overflow-auto">
+                                                <?= $load::getCartItems($cartItems) ?>
+                                            </ul>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="col-span-12 md:col-span-6 md:order-2">
+                            <div class="col-span-12 md:col-span-5 lg:col-span-6 md:order-2">
                                 <div class="relative" data-wind-dropdown="true">
                                     <div class="flex items-center gap-2 rounded-2xl bg-slate-50 p-2 ring-1 ring-inset ring-slate-200 shadow-sm">
                                         <span class="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-white text-slate-600 ring-1 ring-inset ring-slate-200">

@@ -96,6 +96,7 @@ class Orders extends ADMIN_Controller
 
         $result = false;
         $sendedVirtualProducts = true;
+        $metaBefore = $this->Orders_model->getOrderMeta((int) $_POST['the_id']);
         $virtualProducts = $this->Home_admin_model->getValueStore('virtualProducts');
         /*
          * If we want to use Virtual Products
@@ -112,6 +113,16 @@ class Orders extends ADMIN_Controller
             $result = $this->Orders_model->changeOrderStatus($_POST['the_id'], $_POST['to_status']);
         }
 
+        if (
+            $result == true
+            && isset($_POST['to_status']) && (int) $_POST['to_status'] === 1
+            && isset($metaBefore['processed']) && (int) $metaBefore['processed'] !== 1
+            && isset($_POST['userEmail']) && filter_var($_POST['userEmail'], FILTER_VALIDATE_EMAIL)
+        ) {
+            $metaAfter = $this->Orders_model->getOrderMeta((int) $_POST['the_id']);
+            $this->sendOrderProcessedMail($_POST['userEmail'], $metaAfter);
+        }
+
         if ($result == true && $sendedVirtualProducts == true) {
             echo 1;
         } else {
@@ -120,26 +131,63 @@ class Orders extends ADMIN_Controller
         $this->saveHistory('Change status of Order Id ' . $_POST['the_id'] . ' to status ' . $_POST['to_status']);
     }
 
+    private function sendOrderProcessedMail($userEmail, $orderMeta = array())
+    {
+        $orderNumber = isset($orderMeta['order_id']) ? $orderMeta['order_id'] : '';
+        $shopUrl = rtrim(base_url(), '/');
+        $subject = 'Order #' . $orderNumber . ' is completed';
+        $message = "Xin chao,\n\n";
+        $message .= "Don hang #" . $orderNumber . " cua ban da duoc xu ly hoan tat.\n";
+        $message .= "Cam on ban da mua hang tai " . $shopUrl . "\n\n";
+        $message .= "Neu can ho tro them, vui long lien he shop.\n";
+
+        $sent = $this->sendmail->sendTo($userEmail, 'Customer', $subject, $message);
+        if ($sent) {
+            log_message('info', 'Processed order email sent to ' . $userEmail . ' for order ' . $orderNumber);
+        }
+    }
+
     private function sendVirtualProducts()
     {
-        if(isset($_POST['products']) && $_POST['products'] != '') {
-            $products = unserialize(html_entity_decode($_POST['products']), ['allowed_classes' => false]);
-            foreach ($products as $product_id => $product_quantity) {
-                $productInfo = modules::run('admin/ecommerce/products/getProductInfo', $product_id);
-                /*
-                 * If is virtual product, lets send email to user
-                 */
-                if ($productInfo['virtual_products'] != null) {
-                    if (!filter_var($_POST['userEmail'], FILTER_VALIDATE_EMAIL)) {
-                        log_message('error', 'Ivalid customer email address! Cant send him virtual products!');
-                        return false;
-                    }
-                    $result = $this->sendmail->sendTo($_POST['userEmail'], 'Dear Customer', 'Virtual products', $productInfo['virtual_products']);
-                    return $result;
-                }
-            }
+        if (!isset($_POST['products']) || $_POST['products'] === '') {
             return true;
         }
+
+        $products = @unserialize(html_entity_decode($_POST['products'], ENT_QUOTES, 'UTF-8'), ['allowed_classes' => false]);
+        if (!is_array($products)) {
+            log_message('error', 'Invalid order products payload in sendVirtualProducts().');
+            return true;
+        }
+
+        foreach ($products as $product_id => $product_quantity) {
+            $productInfo = null;
+
+            /*
+             * New order format stores product_info directly in serialized data.
+             */
+            if (is_array($product_quantity) && isset($product_quantity['product_info']) && is_array($product_quantity['product_info'])) {
+                $productInfo = $product_quantity['product_info'];
+            } elseif ((int) $product_id > 0) {
+                /*
+                 * Backward-compatible support for old format: product_id => quantity.
+                 */
+                $productInfo = modules::run('admin/ecommerce/products/getProductInfo', (int) $product_id);
+            }
+
+            if (!is_array($productInfo) || empty($productInfo['virtual_products'])) {
+                continue;
+            }
+
+            if (!filter_var($_POST['userEmail'], FILTER_VALIDATE_EMAIL)) {
+                log_message('error', 'Ivalid customer email address! Cant send him virtual products!');
+                return false;
+            }
+
+            $result = $this->sendmail->sendTo($_POST['userEmail'], 'Dear Customer', 'Virtual products', $productInfo['virtual_products']);
+            return $result;
+        }
+
+        return true;
     }
 
 }

@@ -108,5 +108,6 @@ var variable = {
 </script>
 <script src="<?= base_url('assets/js/system.js') ?>"></script>
 <script src="<?= base_url('templatejs/mine.js') ?>"></script>
+<?php $this->load->view('main/chatbot'); ?>
 </body>
 </html>

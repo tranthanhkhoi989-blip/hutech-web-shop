@@ -1,5 +1,20 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
+
+$userProfile = isset($userProfile) && is_array($userProfile) ? $userProfile : array();
+$userName = isset($userProfile['name']) ? trim($userProfile['name']) : '';
+
+$selectedPaymentType = isset($_POST['payment_type']) ? $_POST['payment_type'] : (isset($userProfile['preferred_payment_type']) ? $userProfile['preferred_payment_type'] : '');
+$allowedPaymentTypes = array('cashOnDelivery', 'VisaCard', 'PayPal', 'Bank');
+if (!in_array($selectedPaymentType, $allowedPaymentTypes, true)) {
+    $selectedPaymentType = 'cashOnDelivery';
+}
+$fullNameValue = isset($_POST['full_name']) ? $_POST['full_name'] : (isset($_POST['first_name']) ? $_POST['first_name'] : $userName);
+$emailValue = isset($_POST['email']) ? $_POST['email'] : (isset($userProfile['email']) ? $userProfile['email'] : '');
+$phoneValue = isset($_POST['phone']) ? $_POST['phone'] : (isset($userProfile['phone']) ? $userProfile['phone'] : '');
+$addressValue = isset($_POST['address']) ? $_POST['address'] : (isset($userProfile['address']) ? $userProfile['address'] : '');
+$cityValue = isset($_POST['city']) ? $_POST['city'] : (isset($userProfile['city']) ? $userProfile['city'] : '');
+$postCodeValue = isset($_POST['post_code']) ? $_POST['post_code'] : (isset($userProfile['post_code']) ? $userProfile['post_code'] : '');
 ?>
 <div class="mx-auto max-w-7xl px-4 py-8" id="checkout-page">
     <?php if (isset($cartItems['array']) && $cartItems['array'] != null) { ?>
@@ -37,47 +52,76 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <form method="POST" id="goOrder" class="mt-6 space-y-6">
                         <div>
                             <label class="text-xs font-semibold uppercase tracking-wider text-slate-500"><?= lang('choose_payment') ?></label>
-                            <select name="payment_type" class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-900 outline-none focus:ring-2 focus:ring-slate-900/10">
+                            <select id="paymentTypeSelect" name="payment_type" class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-900 outline-none focus:ring-2 focus:ring-slate-900/10">
                                 <?php if ($cashondelivery_visibility == 1) { ?>
-                                    <option value="cashOnDelivery"><?= lang('cash_on_delivery') ?></option>
+                                    <option value="cashOnDelivery" <?= $selectedPaymentType === 'cashOnDelivery' ? 'selected' : '' ?>><?= lang('cash_on_delivery') ?></option>
                                 <?php } ?>
+                                <option value="VisaCard" <?= $selectedPaymentType === 'VisaCard' ? 'selected' : '' ?>>Visa Card</option>
                                 <?php if (filter_var($paypal_email, FILTER_VALIDATE_EMAIL)) { ?>
-                                    <option value="PayPal"><?= lang('paypal') ?></option>
+                                    <option value="PayPal" <?= $selectedPaymentType === 'PayPal' ? 'selected' : '' ?>><?= lang('paypal') ?></option>
                                 <?php } ?>
                                 <?php if (isset($bank_account['iban']) && $bank_account['iban'] != null) { ?>
-                                    <option value="Bank"><?= lang('bank_payment') ?></option>
+                                    <option value="Bank" <?= $selectedPaymentType === 'Bank' ? 'selected' : '' ?>><?= lang('bank_payment') ?></option>
                                 <?php } ?>
                             </select>
+                            <div id="paymentInfoBox" class="mt-3 rounded-xl bg-slate-50 p-3 text-xs text-slate-700 ring-1 ring-slate-200">
+                                <div data-payment-info="cashOnDelivery">Pay at delivery time.</div>
+                                <div data-payment-info="VisaCard" class="hidden">Visa card payment: after placing the order, our team will contact you to confirm card payment details.</div>
+                                <div data-payment-info="PayPal" class="hidden">You will be redirected to PayPal to complete payment.</div>
+                                <div data-payment-info="Bank" class="hidden">You will see full bank transfer details after placing the order.</div>
+                            </div>
+                        </div>
+
+                        <div id="visaFieldsBox" class="hidden rounded-2xl bg-slate-50 p-4 ring-1 ring-slate-200">
+                            <div class="text-sm font-semibold text-slate-800">Visa card details</div>
+                            <div class="mt-3 grid grid-cols-1 gap-4 md:grid-cols-2">
+                                <div class="md:col-span-2">
+                                    <label class="text-sm font-semibold text-slate-700">Card holder name</label>
+                                    <input id="visaHolderInput" name="visa_holder_name" value="<?= @$_POST['visa_holder_name'] ?>" type="text" class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-900/10" placeholder="Full name on card">
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="text-sm font-semibold text-slate-700">Card number</label>
+                                    <input id="visaCardNumberInput" name="visa_card_number" value="<?= @$_POST['visa_card_number'] ?>" type="text" class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-900/10" placeholder="xxxx xxxx xxxx xxxx">
+                                </div>
+                                <div>
+                                    <label class="text-sm font-semibold text-slate-700">Card start date (MM/YY)</label>
+                                    <input id="visaStartDateInput" name="visa_start_date" value="<?= @$_POST['visa_start_date'] ?>" type="text" class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-900/10" placeholder="MM/YY">
+                                </div>
+                                <div>
+                                    <label class="text-sm font-semibold text-slate-700">Card expiry date (MM/YY)</label>
+                                    <input id="visaExpiryDateInput" name="visa_expiry_date" value="<?= @$_POST['visa_expiry_date'] ?>" type="text" class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-900/10" placeholder="MM/YY">
+                                </div>
+                                <div>
+                                    <label class="text-sm font-semibold text-slate-700">3-digit security code</label>
+                                    <input id="visaCvvInput" name="visa_cvv" value="<?= @$_POST['visa_cvv'] ?>" type="password" maxlength="3" class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-900/10" placeholder="CVV">
+                                </div>
+                            </div>
                         </div>
 
                         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                            <div>
-                                <label for="firstNameInput" class="text-sm font-semibold text-slate-700"><?= lang('first_name') ?> (<sup><?= lang('requires') ?></sup>)</label>
-                                <input id="firstNameInput" class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-900/10" name="first_name" value="<?= @$_POST['first_name'] ?>" type="text" placeholder="<?= lang('first_name') ?>">
-                            </div>
-                            <div>
-                                <label for="lastNameInput" class="text-sm font-semibold text-slate-700"><?= lang('last_name') ?> (<sup><?= lang('requires') ?></sup>)</label>
-                                <input id="lastNameInput" class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-900/10" name="last_name" value="<?= @$_POST['last_name'] ?>" type="text" placeholder="<?= lang('last_name') ?>">
+                            <div class="md:col-span-2">
+                                <label for="fullNameInput" class="text-sm font-semibold text-slate-700">Full name (<sup><?= lang('requires') ?></sup>)</label>
+                                <input id="fullNameInput" class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-900/10" name="full_name" value="<?= htmlspecialchars($fullNameValue) ?>" type="text" placeholder="Full name">
                             </div>
                             <div>
                                 <label for="emailAddressInput" class="text-sm font-semibold text-slate-700"><?= lang('email_address') ?> (<sup><?= lang('requires') ?></sup>)</label>
-                                <input id="emailAddressInput" class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-900/10" name="email" value="<?= @$_POST['email'] ?>" type="text" placeholder="<?= lang('email_address') ?>">
+                                <input id="emailAddressInput" class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-900/10" name="email" value="<?= htmlspecialchars($emailValue) ?>" type="text" placeholder="<?= lang('email_address') ?>">
                             </div>
                             <div>
                                 <label for="phoneInput" class="text-sm font-semibold text-slate-700"><?= lang('phone') ?> (<sup><?= lang('requires') ?></sup>)</label>
-                                <input id="phoneInput" class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-900/10" name="phone" value="<?= @$_POST['phone'] ?>" type="text" placeholder="<?= lang('phone') ?>">
+                                <input id="phoneInput" class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-900/10" name="phone" value="<?= htmlspecialchars($phoneValue) ?>" type="text" placeholder="<?= lang('phone') ?>">
                             </div>
                             <div class="md:col-span-2">
                                 <label for="addressInput" class="text-sm font-semibold text-slate-700"><?= lang('address') ?> (<sup><?= lang('requires') ?></sup>)</label>
-                                <textarea id="addressInput" name="address" class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-900/10" rows="3"><?= @$_POST['address'] ?></textarea>
+                                <textarea id="addressInput" name="address" class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-900/10" rows="3"><?= htmlspecialchars($addressValue) ?></textarea>
                             </div>
                             <div>
                                 <label for="cityInput" class="text-sm font-semibold text-slate-700"><?= lang('city') ?> (<sup><?= lang('requires') ?></sup>)</label>
-                                <input id="cityInput" class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-900/10" name="city" value="<?= @$_POST['city'] ?>" type="text" placeholder="<?= lang('city') ?>">
+                                <input id="cityInput" class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-900/10" name="city" value="<?= htmlspecialchars($cityValue) ?>" type="text" placeholder="<?= lang('city') ?>">
                             </div>
                             <div>
                                 <label for="postInput" class="text-sm font-semibold text-slate-700"><?= lang('post_code') ?></label>
-                                <input id="postInput" class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-900/10" name="post_code" value="<?= @$_POST['post_code'] ?>" type="text" placeholder="<?= lang('post_code') ?>">
+                                <input id="postInput" class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-900/10" name="post_code" value="<?= htmlspecialchars($postCodeValue) ?>" type="text" placeholder="<?= lang('post_code') ?>">
                             </div>
                             <div class="md:col-span-2">
                                 <label for="notesInput" class="text-sm font-semibold text-slate-700"><?= lang('notes') ?></label>
@@ -94,6 +138,29 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                         <?= lang('check_code') ?>
                                     </a>
                                 </div>
+                                <?php if (!empty($activeDiscountCodes)) { ?>
+                                    <div class="mt-3 rounded-xl bg-white p-3 ring-1 ring-slate-200">
+                                        <div class="text-xs font-semibold uppercase tracking-wider text-slate-500">Available discount codes</div>
+                                        <div class="mt-2 flex flex-wrap gap-2">
+                                            <?php foreach ($activeDiscountCodes as $dc) { ?>
+                                                <?php
+                                                $discountLabel = $dc['type'] === 'percent'
+                                                    ? ('-' . $dc['amount'] . '%')
+                                                    : ('-' . $dc['amount'] . CURRENCY);
+                                                ?>
+                                                <button
+                                                    type="button"
+                                                    class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-800 hover:bg-slate-100"
+                                                    onclick="document.querySelector('input[name=discountCode]').value='<?= htmlspecialchars($dc['code'], ENT_QUOTES, 'UTF-8') ?>'; checkDiscountCode();"
+                                                    title="Click to apply this code"
+                                                >
+                                                    <span><?= htmlspecialchars($dc['code']) ?></span>
+                                                    <span class="rounded-lg bg-slate-900 px-2 py-0.5 text-white"><?= $discountLabel ?></span>
+                                                </button>
+                                            <?php } ?>
+                                        </div>
+                                    </div>
+                                <?php } ?>
                             </div>
                         <?php } ?>
 
@@ -209,3 +276,52 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         });
     </script>
 <?php } ?>
+<script>
+(function () {
+    var select = document.getElementById('paymentTypeSelect');
+    var infoBox = document.getElementById('paymentInfoBox');
+    var visaFieldsBox = document.getElementById('visaFieldsBox');
+    var visaRequiredInputs = [
+        document.getElementById('visaHolderInput'),
+        document.getElementById('visaCardNumberInput'),
+        document.getElementById('visaStartDateInput'),
+        document.getElementById('visaExpiryDateInput'),
+        document.getElementById('visaCvvInput')
+    ];
+
+    if (!select || !infoBox || !visaFieldsBox) {
+        return;
+    }
+
+    function updatePaymentInfo() {
+        var current = select.value;
+        var items = infoBox.querySelectorAll('[data-payment-info]');
+        items.forEach(function (node) {
+            if (node.getAttribute('data-payment-info') === current) {
+                node.classList.remove('hidden');
+            } else {
+                node.classList.add('hidden');
+            }
+        });
+
+        var visaSelected = current === 'VisaCard';
+        if (visaSelected) {
+            visaFieldsBox.classList.remove('hidden');
+        } else {
+            visaFieldsBox.classList.add('hidden');
+        }
+
+        visaRequiredInputs.forEach(function (input) {
+            if (!input) return;
+            if (visaSelected) {
+                input.setAttribute('required', 'required');
+            } else {
+                input.removeAttribute('required');
+            }
+        });
+    }
+
+    select.addEventListener('change', updatePaymentInfo);
+    updatePaymentInfo();
+})();
+</script>

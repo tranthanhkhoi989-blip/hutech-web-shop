@@ -27,6 +27,12 @@ Current versions:
   - <code>application/config/mailer.example.php</code> -> <code>application/config/mailer.php</code> (or set MAIL env vars)
   - <code>application/config/turnstile.example.php</code> -> <code>application/config/turnstile.php</code> (or set TURNSTILE env vars)
 
+## Docker Quick Start (.NET 8 app)
+1. Copy env example: <code>cp .env.example .env</code>
+2. Start services: <code>docker compose up -d --build</code>
+3. Open app: <code>http://localhost:5001</code>
+4. SQL Server is exposed at host port <code>1434</code>
+
 ## Donate
 <p>If this project help you reduce time to develop, you can give me a cup of coffee to continue its development. Thank you! :)</p>
 

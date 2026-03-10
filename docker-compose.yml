@@ -1,0 +1,32 @@
+version: "3.8"
+
+services:
+  sqlserver_hutech:
+    container_name: sqlserver_hutech
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    restart: always
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "${MSSQL_SA_PASSWORD}"
+    ports:
+      - "1434:1433"
+    volumes:
+      - hutech_sql_data:/var/opt/mssql
+
+  aspnet-app:
+    container_name: hutech-it-event
+    build: .
+    restart: always
+    ports:
+      - "5001:8080"
+    environment:
+      ASPNETCORE_URLS: "${ASPNETCORE_URLS:-http://+:8080}"
+      ConnectionStrings__DefaultConnection: "${ConnectionStrings__DefaultConnection}"
+    depends_on:
+      - sqlserver_hutech
+    volumes:
+      - hutech_uploads_data:/app/wwwroot/uploads
+
+volumes:
+  hutech_sql_data:
+  hutech_uploads_data:

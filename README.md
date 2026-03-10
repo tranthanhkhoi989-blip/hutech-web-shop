@@ -9,7 +9,7 @@ Current versions:
 * Bootstrap 3.3.7
 
 ## Competition Readiness
-- Public repository: <code>https://github.com/khoikid789-lang/web-app-</code>
+- Public repository: <code>https://github.com/tranthanhkhoi989-blip/hutech-web-shop.git</code>
 - License: MIT (<code>LICENSE</code>)
 - Current release version: <code>v1.0.0-competition-2026</code> (<code>VERSION</code>)
 - Installation and usage (Vietnamese): <code>docs/SETUP_AND_USAGE_VI.md</code>
@@ -18,6 +18,14 @@ Current versions:
 - Changelog: <code>CHANGELOG.md</code>
 - Project roadmap: <code>docs/ROADMAP.md</code>
 - Rubric evidence map: <code>docs/COMPETITION_CHECKLIST.md</code>
+
+## Security and Secrets
+- This repository does not store real secrets.
+- Copy and fill local config from example files:
+  - <code>.env.example</code> -> <code>.env</code>
+  - <code>application/config/database.example.php</code> -> <code>application/config/database.php</code> (or set DB env vars)
+  - <code>application/config/mailer.example.php</code> -> <code>application/config/mailer.php</code> (or set MAIL env vars)
+  - <code>application/config/turnstile.example.php</code> -> <code>application/config/turnstile.php</code> (or set TURNSTILE env vars)
 
 ## Donate
 <p>If this project help you reduce time to develop, you can give me a cup of coffee to continue its development. Thank you! :)</p>

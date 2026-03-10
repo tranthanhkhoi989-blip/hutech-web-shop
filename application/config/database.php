@@ -73,12 +73,23 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 $active_group = 'default';
 $query_builder = TRUE;
 
+if (!function_exists('db_env')) {
+	function db_env($key, $default = '')
+	{
+		$value = getenv($key);
+		if ($value === false || $value === '') {
+			return $default;
+		}
+		return $value;
+	}
+}
+
 $db['default'] = array(
 	'dsn'	=> '',
-	'hostname' => 'localhost',
-	'username' => 'root',
-	'password' => '',
-	'database' => 'shop',
+	'hostname' => db_env('DB_HOST', 'localhost'),
+	'username' => db_env('DB_USERNAME', 'your_db_username'),
+	'password' => db_env('DB_PASSWORD', 'your_db_password'),
+	'database' => db_env('DB_DATABASE', 'shop'),
 	'dbdriver' => 'mysqli',
 	'dbprefix' => '',
 	'pconnect' => FALSE,
